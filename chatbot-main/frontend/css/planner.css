@@ -1,0 +1,761 @@
+/* ==========================================================================
+   StudySync AI — Study Planner Modal & Schedule UI
+   ========================================================================== */
+
+/* ==========================================================================
+   Planner Trigger Button (in toolbar)
+   ========================================================================== */
+
+.planner-pill {
+  background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(2,132,199,0.1) 100%);
+  border: 1px solid rgba(99,102,241,0.25);
+  color: var(--primary-purple);
+  font-weight: 700;
+}
+
+.planner-pill:hover {
+  background: linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(2,132,199,0.18) 100%);
+  border-color: var(--primary-purple);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Modal Overlay
+   ========================================================================== */
+
+.planner-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.planner-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ==========================================================================
+   Modal Panel
+   ========================================================================== */
+
+.planner-modal {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 24px 64px -12px rgba(99, 102, 241, 0.18), 0 8px 24px -4px rgba(0,0,0,0.08);
+  border: 1px solid var(--border-medium);
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.planner-overlay.active .planner-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* Modal Header */
+.planner-modal-header {
+  padding: 22px 28px 18px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e0f2fe 100%);
+  flex-shrink: 0;
+}
+
+.planner-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.planner-modal-title .planner-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--grad-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+
+.planner-modal-title h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.planner-modal-title p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin: 2px 0 0;
+}
+
+.planner-close-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.planner-close-btn:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* Step Progress Indicator */
+.planner-steps-bar {
+  padding: 14px 28px 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+}
+
+.planner-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border-medium);
+  background: var(--bg-main);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.planner-step-dot.active {
+  border-color: var(--primary-purple);
+  background: var(--primary-purple);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+}
+
+.planner-step-dot.done {
+  border-color: var(--accent-emerald);
+  background: var(--accent-emerald);
+  color: white;
+}
+
+.planner-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border-medium);
+  transition: background var(--transition-normal);
+}
+
+.planner-step-line.done {
+  background: var(--accent-emerald);
+}
+
+/* Modal Body — Scrollable */
+.planner-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px 28px;
+}
+
+/* ==========================================================================
+   Form Steps
+   ========================================================================== */
+
+.planner-step {
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.planner-step.active {
+  display: block;
+}
+
+.planner-step-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.planner-step-subtitle {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+/* Form Groups */
+.planner-field {
+  margin-bottom: 16px;
+}
+
+.planner-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.planner-label span {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.78rem;
+  margin-left: 4px;
+}
+
+.planner-input,
+.planner-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.planner-input:focus,
+.planner-select:focus {
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+
+.planner-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Hours slider */
+.planner-hours-display {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary-purple);
+  font-family: 'Outfit', sans-serif;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.planner-hours-display span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.planner-range {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--primary-purple) 0%, var(--primary-purple) var(--range-pct, 25%), var(--border-medium) var(--range-pct, 25%));
+  outline: none;
+  cursor: pointer;
+}
+
+.planner-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary-purple);
+  box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.planner-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Time preference pills */
+.time-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.time-pill {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-medium);
+  background: var(--bg-main);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.time-pill:hover {
+  border-color: var(--primary-purple);
+  color: var(--primary-purple);
+}
+
+.time-pill.selected {
+  background: var(--primary-purple-light);
+  border-color: var(--primary-purple);
+  color: var(--primary-purple-dark);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Subject Entry (Step 2)
+   ========================================================================== */
+
+.subject-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.subject-input-row .planner-input {
+  flex: 1;
+}
+
+.btn-add-subject {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--primary-purple-light);
+  border: 1.5px solid rgba(99,102,241,0.25);
+  color: var(--primary-purple);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-add-subject:hover {
+  background: var(--primary-purple);
+  color: white;
+}
+
+.subjects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.subject-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast);
+}
+
+.subject-tag:hover {
+  border-color: var(--primary-purple);
+}
+
+.subject-tag-name {
+  flex: 1;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.subject-diff-select {
+  padding: 4px 8px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  color: var(--text-secondary);
+}
+
+.subject-diff-select.hard   { border-color: #fca5a5; color: #b91c1c; background: #fef2f2; }
+.subject-diff-select.medium { border-color: #fcd34d; color: #b45309; background: #fffbeb; }
+.subject-diff-select.easy   { border-color: #6ee7b7; color: #047857; background: #ecfdf5; }
+
+.subject-remove-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.subject-remove-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.subjects-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.83rem;
+  padding: 20px;
+  border: 1.5px dashed var(--border-medium);
+  border-radius: var(--radius-md);
+}
+
+/* ==========================================================================
+   Modal Footer Navigation
+   ========================================================================== */
+
+.planner-modal-footer {
+  padding: 14px 28px 20px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+}
+
+.planner-nav-btn {
+  padding: 10px 22px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.planner-nav-btn.secondary {
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-medium);
+  color: var(--text-secondary);
+}
+
+.planner-nav-btn.secondary:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.planner-nav-btn.primary {
+  background: var(--grad-primary);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+
+.planner-nav-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(99,102,241,0.4);
+}
+
+.planner-nav-btn.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.planner-generating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.83rem;
+}
+
+.planner-generating .spin {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-medium);
+  border-top-color: var(--primary-purple);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ==========================================================================
+   Schedule Result Panel (rendered in chat)
+   ========================================================================== */
+
+.schedule-result-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-top: 4px;
+}
+
+.schedule-result-header {
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e0f2fe 100%);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.schedule-result-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.schedule-result-title .sched-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: var(--grad-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.schedule-result-title h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.schedule-result-title p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 1px 0 0;
+}
+
+.schedule-meta-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.schedule-meta-pill {
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(99,102,241,0.1);
+  color: var(--primary-purple-dark);
+  border: 1px solid rgba(99,102,241,0.2);
+}
+
+.schedule-result-body {
+  padding: 18px 22px;
+  overflow-x: auto;
+}
+
+/* Schedule table */
+.schedule-result-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin: 10px 0;
+}
+
+.schedule-result-body th {
+  background: var(--primary-purple-light);
+  color: var(--primary-purple-dark);
+  font-weight: 700;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid rgba(99,102,241,0.2);
+}
+
+.schedule-result-body td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+  vertical-align: top;
+}
+
+.schedule-result-body tr:last-child td {
+  border-bottom: none;
+}
+
+.schedule-result-body tr:hover td {
+  background: var(--bg-main);
+}
+
+/* Activity type color coding */
+.schedule-result-body td:nth-child(3) {
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* Section headers inside schedule */
+.schedule-result-body h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 20px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--primary-purple-light);
+}
+
+.schedule-result-body h4 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--primary-purple-dark);
+  margin: 14px 0 6px;
+}
+
+.schedule-result-body p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.schedule-result-body ul,
+.schedule-result-body ol {
+  margin: 6px 0 10px 18px;
+}
+
+.schedule-result-body li {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+.schedule-result-body strong {
+  color: var(--primary-purple-dark);
+  font-weight: 700;
+}
+
+.schedule-result-body hr {
+  border: none;
+  border-top: 1px dashed var(--border-medium);
+  margin: 14px 0;
+}
+
+.schedule-result-body blockquote {
+  border-left: 3px solid var(--primary-purple);
+  padding: 6px 12px;
+  margin: 8px 0;
+  background: var(--primary-purple-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Download/Copy action bar */
+.schedule-result-actions {
+  padding: 12px 22px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-main);
+}
+
+.sched-action-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid var(--border-medium);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.sched-action-btn:hover {
+  border-color: var(--primary-purple);
+  color: var(--primary-purple);
+  background: var(--primary-purple-light);
+}
+
+.sched-action-btn.primary {
+  background: var(--grad-primary);
+  border: none;
+  color: white;
+}
+
+.sched-action-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+
+/* Animations */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .planner-modal {
+    max-height: 95vh;
+    border-radius: var(--radius-lg);
+  }
+  .planner-modal-header,
+  .planner-modal-body,
+  .planner-modal-footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .planner-input-row {
+    grid-template-columns: 1fr;
+  }
+  .schedule-result-body {
+    padding: 12px 14px;
+  }
+}

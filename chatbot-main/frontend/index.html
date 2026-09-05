@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudySync AI | Educational AI Chatbot</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/planner.css">
+  <link rel="stylesheet" href="css/demo.css">
+</head>
+<body>
+
+  <!-- App Shell Container -->
+  <div class="app-container">
+    
+    <!-- Mobile Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- ==========================================================================
+         Left Sidebar (Chat History & Sessions)
+         ========================================================================== -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Brand Header -->
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <div class="logo-icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+              <path d="M6 6h10"></path>
+              <path d="M6 10h10"></path>
+              <path d="m13 16 2 2 4-4"></path>
+            </svg>
+          </div>
+          <span>StudySync</span>
+          <span class="brand-badge">AI</span>
+        </div>
+      </div>
+
+      <!-- New Chat Button -->
+      <button class="sidebar-action-btn" id="newChatBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+        <span>New Chat</span>
+      </button>
+
+      <!-- Chat History Section -->
+      <div class="sidebar-section-title">Recent Conversations</div>
+      <div class="history-list" id="historyList">
+        <!-- Dynamically rendered chat session items -->
+      </div>
+
+      <!-- User Memory Status Footer -->
+      <div class="sidebar-footer">
+        <div class="user-profile-badge">
+          <div class="user-avatar">AI</div>
+          <div class="user-meta">
+            <span class="name">Education Assistant</span>
+            <span class="role"><span class="pulse-badge"></span> Context Memory Active</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==========================================================================
+         Main Chatbot Workspace
+         ========================================================================== -->
+    <main class="main-content">
+      
+      <!-- Top Navigation Bar -->
+      <header class="top-nav">
+        <div class="top-nav-left">
+          <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle Sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" x2="21" y1="6" y2="6"></line>
+              <line x1="3" x2="21" y1="12" y2="12"></line>
+              <line x1="3" x2="21" y1="18" y2="18"></line>
+            </svg>
+          </button>
+          <div class="current-view-title">
+            <span class="view-indicator-dot"></span>
+            <span>StudySync AI</span>
+          </div>
+        </div>
+
+        <div class="top-nav-right">
+          <button class="header-tool-btn" id="clearChatBtn" title="Clear current conversation">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+            <span>Clear Chat</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Competition Demo Mode Bar -->
+      <div class="demo-control-bar" id="demoControlBar">
+        <div class="demo-bar-left">
+          <div class="demo-mode-badge">
+            <span class="demo-pulse-dot"></span>
+            <span class="demo-badge-text">Demo Mode</span>
+          </div>
+
+          <!-- 4-Minute Presentation Timer -->
+          <div class="demo-timer-widget" id="demoTimerWidget" title="Competition 4-Minute Pitch Timer">
+            <div class="timer-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <span class="timer-display" id="demoTimerDisplay">04:00</span>
+            <button class="timer-btn" id="demoTimerToggleBtn" title="Start / Pause Timer (Alt+T)">
+              <svg id="timerPlayIcon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <svg id="timerPauseIcon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display:none;">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+            </button>
+            <button class="timer-btn" id="demoTimerResetBtn" title="Reset Timer to 4:00">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Quick Guided Interaction Buttons -->
+        <div class="demo-bar-center" role="toolbar" aria-label="Demo Guided Interactions">
+          <button class="demo-quick-btn" id="demoBtnClaim" data-demo="claim" title="Alt+1: Scientific Claim Verification">
+            <span class="btn-icon">🔬</span>
+            <span class="btn-label">Verify a Learning Claim</span>
+            <span class="btn-tag">Mozart Myth</span>
+          </button>
+          <button class="demo-quick-btn" id="demoBtnPlan" data-demo="plan" title="Alt+2: 7-Day Cognitive Matrix">
+            <span class="btn-icon">📅</span>
+            <span class="btn-label">Build My Study Plan</span>
+            <span class="btn-tag">AI Matrix</span>
+          </button>
+          <button class="demo-quick-btn" id="demoBtnMemory" data-demo="memory" title="Alt+3: Ebbinghaus Forgetting Curve">
+            <span class="btn-icon">🧠</span>
+            <span class="btn-label">Improve My Memory</span>
+            <span class="btn-tag">Forgetting Curve</span>
+          </button>
+          <button class="demo-quick-btn" id="demoBtnQuiz" data-demo="quiz" title="Alt+4: Gamified Active Recall Challenge">
+            <span class="btn-icon">🎯</span>
+            <span class="btn-label">Test Knowledge</span>
+            <span class="btn-tag">Active Recall</span>
+          </button>
+        </div>
+
+        <!-- Demo Utilities -->
+        <div class="demo-bar-right">
+          <button class="demo-aux-btn tour-btn" id="demoTourBtn" title="Run 4-Minute Automated Tour through all 4 pillars">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Auto Tour</span>
+          </button>
+          <button class="demo-aux-btn reset-btn" id="demoResetBtn" title="Reset chat and return to demo starting point">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat Canvas -->
+      <section class="chat-view">
+        
+        <!-- Messages Container -->
+        <div class="chat-messages-container" id="chatMessagesContainer">
+          <div class="messages-inner" id="messagesList">
+
+            <!-- Welcome Screen (Visible on empty chat) -->
+            <div class="welcome-screen" id="welcomeScreen">
+              <div class="welcome-hero-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <span>Educational AI Assistant</span>
+              </div>
+
+              <h1 class="welcome-title">Hi! I'm <span class="gradient-text">StudySync AI</span> 👋</h1>
+              <p class="welcome-subtitle">
+                Your intelligent learning and memory assistant. Ask me anything about studying, learning, focus, memory and retention.
+              </p>
+
+              <!-- Suggested Educational Question Cards -->
+              <div class="welcome-cards-section">
+                <div class="cards-section-header">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  <span>Suggested Questions to Ask</span>
+                </div>
+
+                <div class="welcome-cards-grid">
+                  <!-- Card 1: Claim Verification -->
+                  <div class="suggested-card" data-prompt="Verify a Learning Claim: Is it true that listening to Mozart or classical music makes you smarter ('The Mozart Effect')?">
+                    <div class="card-top">
+                      <div class="card-icon verify">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                          <path d="m9 12 2 2 4-4"></path>
+                        </svg>
+                      </div>
+                      <span class="card-tag">Pillar 1 • Verify Claim</span>
+                    </div>
+                    <div class="card-title">Verify a Learning Claim</div>
+                    <div class="card-prompt">"Does listening to Mozart make you smarter? Verify the Mozart Effect with neuroscience."</div>
+                  </div>
+
+                  <!-- Card 2: Study Plan -->
+                  <div class="suggested-card" data-prompt="Build My Study Plan: Generate a high-performance 7-day mastery schedule for Neural Networks & Deep Learning (2.5 hours/day).">
+                    <div class="card-top">
+                      <div class="card-icon plan">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                          <line x1="16" x2="16" y1="2" y2="6"></line>
+                          <line x1="8" x2="8" y1="2" y2="6"></line>
+                          <line x1="3" x2="21" y1="10" y2="10"></line>
+                        </svg>
+                      </div>
+                      <span class="card-tag">Pillar 2 • AI Matrix</span>
+                    </div>
+                    <div class="card-title">Build My Study Plan</div>
+                    <div class="card-prompt">"Generate a 7-day mastery schedule for Neural Networks with cognitive interleaving."</div>
+                  </div>
+
+                  <!-- Card 3: Memory Retention -->
+                  <div class="suggested-card" data-prompt="Improve My Memory: How do I retain complex academic concepts long-term and overcome the Ebbinghaus forgetting curve?">
+                    <div class="card-top">
+                      <div class="card-icon retention">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2a5 5 0 0 0-5 5v2a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5Z"></path>
+                          <path d="M4 14a8 8 0 0 0 16 0"></path>
+                          <path d="M12 14v8"></path>
+                        </svg>
+                      </div>
+                      <span class="card-tag">Pillar 3 • Memory Curve</span>
+                    </div>
+                    <div class="card-title">Improve My Memory</div>
+                    <div class="card-prompt">"How to beat the Ebbinghaus forgetting curve using spaced retrieval and active recall."</div>
+                  </div>
+
+                  <!-- Card 4: Knowledge Test -->
+                  <div class="suggested-card" data-prompt="Test Knowledge: Challenge me with a diagnostic cognitive science question on memory and active recall.">
+                    <div class="card-top">
+                      <div class="card-icon concept">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                      </div>
+                      <span class="card-tag">Pillar 4 • Active Recall</span>
+                    </div>
+                    <div class="card-title">Test Knowledge</div>
+                    <div class="card-prompt">"Challenge me with an interactive diagnostic quiz on evidence-based study techniques."</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Welcome Screen -->
+
+          </div>
+        </div>
+
+        <!-- Bottom Chat Input Area -->
+        <div class="chat-input-wrapper">
+          <div class="chat-input-box">
+            <div class="input-row">
+              <textarea 
+                class="chat-textarea" 
+                id="chatInput" 
+                rows="1" 
+                placeholder="Ask any educational question, verify a claim, or create a study plan..."
+              ></textarea>
+              <button class="send-btn" id="sendBtn" title="Send message" aria-label="Send message" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Quick Action Feature Pills -->
+            <div class="input-toolbar">
+              <div class="quick-feature-pills">
+                <button class="feature-pill" data-prefix="Verify this claim with sources: ">
+                  <span>🔍 Verify Claim</span>
+                </button>
+                <button class="feature-pill" data-prefix="Explain this scientific concept simply: ">
+                  <span>💡 Explain Concept</span>
+                </button>
+                <button class="feature-pill" data-prefix="Recommend an effective study break for: ">
+                  <span>☕ Study Break</span>
+                </button>
+                <button class="feature-pill planner-pill" id="openPlannerBtn">
+                  <span>📅 Study Planner</span>
+                </button>
+                <button class="feature-pill" data-prefix="How can I improve long-term retention for: ">
+                  <span>🧠 Memory Retention</span>
+                </button>
+              </div>
+              <div class="input-hint">Enter to send • Shift + Enter for new line</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========================================================================
+       Study Planner Modal
+       ======================================================================== -->
+  <div class="planner-overlay" id="plannerOverlay" role="dialog" aria-modal="true" aria-labelledby="plannerModalTitle">
+    <div class="planner-modal" id="plannerModal">
+
+      <!-- Modal Header -->
+      <div class="planner-modal-header">
+        <div class="planner-modal-title">
+          <div class="planner-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+              <line x1="16" x2="16" y1="2" y2="6"></line>
+              <line x1="8" x2="8" y1="2" y2="6"></line>
+              <line x1="3" x2="21" y1="10" y2="10"></line>
+              <path d="m9 16 2 2 4-4"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 id="plannerModalTitle">Study Planner</h2>
+            <p>Generate your personalized AI study schedule</p>
+          </div>
+        </div>
+        <button class="planner-close-btn" id="plannerCloseBtn" aria-label="Close planner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Step Progress Bar -->
+      <div class="planner-steps-bar" id="plannerStepsBar">
+        <div class="planner-step-dot active" id="stepDot1">1</div>
+        <div class="planner-step-line" id="stepLine1"></div>
+        <div class="planner-step-dot" id="stepDot2">2</div>
+        <div class="planner-step-line" id="stepLine2"></div>
+        <div class="planner-step-dot" id="stepDot3">3</div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="planner-modal-body">
+
+        <!-- Step 1: Time & Schedule -->
+        <div class="planner-step active" id="plannerStep1">
+          <div class="planner-step-title">⏰ Study Time & Schedule</div>
+          <div class="planner-step-subtitle">Tell us how much time you have and when you prefer to study.</div>
+
+          <div class="planner-field">
+            <label class="planner-label">Daily Study Hours</label>
+            <div class="planner-hours-display" id="hoursDisplay">2 <span>hours / day</span></div>
+            <input type="range" class="planner-range" id="studyHoursRange"
+              min="0.5" max="10" step="0.5" value="2"
+              style="--range-pct: 15%"
+              aria-label="Study hours per day">
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted);margin-top:4px;">
+              <span>30 min</span><span>10 hours</span>
+            </div>
+          </div>
+
+          <div class="planner-field">
+            <label class="planner-label">Preparation Period</label>
+            <div class="planner-input-row">
+              <div>
+                <label class="planner-label" style="font-weight:500;color:var(--text-secondary);">Number of days <span>(or set exam date)</span></label>
+                <input type="number" class="planner-input" id="prepDaysInput"
+                  min="1" max="365" value="7" placeholder="e.g. 7"
+                  aria-label="Preparation days">
+              </div>
+              <div>
+                <label class="planner-label" style="font-weight:500;color:var(--text-secondary);">Exam date <span>(optional)</span></label>
+                <input type="date" class="planner-input" id="examDateInput"
+                  aria-label="Exam date">
+              </div>
+            </div>
+          </div>
+
+          <div class="planner-field">
+            <label class="planner-label">Preferred Study Time</label>
+            <div class="time-pills" id="timePills" role="group" aria-label="Preferred study time">
+              <button class="time-pill selected" data-time="morning" id="timeMorning">🌅 Morning</button>
+              <button class="time-pill" data-time="afternoon" id="timeAfternoon">☀️ Afternoon</button>
+              <button class="time-pill" data-time="evening" id="timeEvening">🌇 Evening</button>
+              <button class="time-pill" data-time="night" id="timeNight">🌙 Night</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Subjects -->
+        <div class="planner-step" id="plannerStep2">
+          <div class="planner-step-title">📚 Subjects & Difficulty</div>
+          <div class="planner-step-subtitle">Add each subject you need to study. Rate the difficulty so we allocate time wisely.</div>
+
+          <div class="planner-field">
+            <div class="subject-input-row">
+              <input type="text" class="planner-input" id="subjectNameInput"
+                placeholder="e.g. Calculus, Biology, History..."
+                aria-label="Subject name" maxlength="60">
+              <button class="btn-add-subject" id="addSubjectBtn">+ Add</button>
+            </div>
+            <div class="subjects-list" id="subjectsList">
+              <div class="subjects-empty" id="subjectsEmpty">No subjects added yet. Add at least one subject to continue.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Goals & Review -->
+        <div class="planner-step" id="plannerStep3">
+          <div class="planner-step-title">🎯 Goals & Final Review</div>
+          <div class="planner-step-subtitle">Optionally share your learning goals, then review your plan details before generating.</div>
+
+          <div class="planner-field">
+            <label class="planner-label" for="goalsInput">Learning Goals <span>(optional)</span></label>
+            <input type="text" class="planner-input" id="goalsInput"
+              placeholder="e.g. Pass with distinction, Improve weak areas in Math..."
+              maxlength="120"
+              aria-label="Learning goals">
+          </div>
+
+          <!-- Plan Summary -->
+          <div style="background:var(--bg-main);border:1px solid var(--border-medium);border-radius:var(--radius-md);padding:14px 16px;margin-top:4px;">
+            <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:10px;">📋 Plan Summary</div>
+            <div id="planSummaryContent" style="display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+        </div>
+
+      </div>
+      <!-- End Modal Body -->
+
+      <!-- Modal Footer -->
+      <div class="planner-modal-footer">
+        <button class="planner-nav-btn secondary" id="plannerBackBtn" style="display:none;">← Back</button>
+        <div style="flex:1;"></div>
+        <div class="planner-generating" id="plannerGenerating" style="display:none;">
+          <div class="spin"></div>
+          <span>Generating your schedule...</span>
+        </div>
+        <button class="planner-nav-btn primary" id="plannerNextBtn">Next Step →</button>
+      </div>
+    </div>
+  </div>
+  <!-- End Study Planner Modal -->
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/demo.js"></script>
+</body>
+</html>
